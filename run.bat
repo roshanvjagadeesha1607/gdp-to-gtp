@@ -1,9 +1,8 @@
 @echo off
-REM  Double-click this file, or run it from a terminal.
-REM  Every *.pdb in input\ is scanned; every GDP found is replaced by the
-REM  best-matching clash-free GTP.  Results go into output\.
+REM Convert GDP residues in PDB files placed in input\.
+REM Any residual overlaps are reported in output\ CSV files.
 cd /d "%~dp0"
-python gdp_to_gtp.py --input-dir input --pattern *.pdb --out-dir output --cache gtp_tubulin_cache.tsv
+python gdp_to_gtp.py --input-dir input --pattern "*.pdb" --out-dir output --cache gtp_all_rcsb_cache.tsv
 echo.
-echo Finished. Results are in the output folder.
+echo Finished. Review the output folder and site reports.
 pause

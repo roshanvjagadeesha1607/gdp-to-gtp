@@ -1,59 +1,40 @@
-GDP-to-GTP Structure Replacement | Quick Start
-==============================================
+GDP-TO-GTP STRUCTURE PREPARATION - QUICK START
+================================================
 
 PURPOSE
-Automates placement of candidate GTP nucleotides at GDP-bound sites in PDB
-structures, including multichain assemblies. GTP conformations are aligned to
-existing GDP coordinates and screened for steric overlaps.
+Automate GDP-to-GTP replacement at one or more nucleotide-binding sites in
+PDB structures. Candidate experimental GTP geometries are aligned and screened
+for steric overlaps. Sites with residual overlaps are reported, not hidden.
 
 REQUIREMENTS
-- Python 3.8 or newer and NumPy. Install NumPy with:
-  Linux / macOS: python3 -m pip install numpy
-  Windows:       python -m pip install numpy
-- The included gtp_tubulin_cache.tsv enables offline use.
-- The requests package is needed only to retrieve or refresh reference data:
-  python3 -m pip install requests   (Linux / macOS)
-  python -m pip install requests    (Windows)
+- Python 3.8 or newer
+- NumPy: python3 -m pip install numpy
+- 'requests' is required only when rebuilding the reference library
 
 INPUT
-- Place one or more .pdb files in the input/ directory.
-- Each target GDP must be recorded as a HETATM residue named GDP and contain
-  the atoms needed for alignment; incomplete GDP sites are skipped.
-- Input structures must be PDB, not mmCIF (.cif). Use single-model PDB files.
+Place GDP-containing .pdb files in input/. GDP must be present as HETATM
+records with the standard nucleotide atom names required by the script.
+Input mmCIF files and multi-MODEL PDB ensembles are not supported.
 
 RUN
-From the repository directory:
+Linux / macOS:  ./run.sh
+Windows:        run.bat
+Or, from the project directory:
 
-  Linux / macOS:  bash run.sh
-  Windows:        run.bat
-
-Or run directly (Linux / macOS):
-
-  python3 gdp_to_gtp.py --input-dir input --pattern "*.pdb" \
-    --out-dir output --cache gtp_tubulin_cache.tsv
-
-On Windows, use python instead of python3.
-Use python3 gdp_to_gtp.py --help for options (python on Windows).
+  python3 gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_all_rcsb_cache.tsv
 
 OUTPUT
-Files are written to output/:
-- <name>_GTP.pdb: structure with processed GDP sites replaced.
-- sites_<name>.csv: donor structures, RMSD, placement method, and contacts
-  for each processed GDP site.
-- all_sites.csv: combined site-level report across input structures.
+- output/<name>_GTP.pdb   : converted structure
+- output/sites_<name>.csv : placement details for one input
+- output/all_sites.csv    : results across input files
 
-CHECK BEFORE FURTHER MODELING
-- Review method_used and worst_overlap_A in the CSV reports. A positive
-  worst_overlap_A indicates a residual overlap; some sites may be unresolved.
-- Check nucleotide geometry, binding-site contacts, and relevant metal-ion
-  coordination; perform appropriate refinement or energy minimization.
-- Replacement does not model the protein conformational changes associated
-  with GDP-to-GTP exchange.
+The 'unresolved' method in CSV reports means a placement was produced but
+some steric overlap remains. Inspect the PDB and CSV reports before using
+the structure for energy minimization or molecular dynamics.
 
-LIMITATIONS
-- The supplied reference cache was assembled from tubulin-related structures;
-  assess its suitability for other protein families or build a relevant cache.
-- Multimodel PDB files are not handled reliably. Existing CONECT records are
-  not preserved, and PDB atom serials can be ambiguous in very large systems.
+REFERENCE LIBRARY
+The default cache is gtp_all_rcsb_cache.tsv. The original tubulin-focused
+cache remains available as gtp_tubulin_cache.tsv. Select either using --cache.
 
-See README.md for the scientific method and further details.
+Full command-line options: python3 gdp_to_gtp.py --help
+Scientific details and limitations: README.md

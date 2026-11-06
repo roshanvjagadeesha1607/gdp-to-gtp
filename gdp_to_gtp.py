@@ -28,7 +28,7 @@ Version 2 changes
 
 Quick start
 -----------
-    python gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_tubulin_cache.tsv
+    python gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_all_rcsb_cache.tsv
 
 Requirements
 ------------
@@ -809,7 +809,7 @@ def main():
     ap.add_argument("--files", nargs="*", default=None)
     ap.add_argument("--out-dir", default="GTP_replaced")
     ap.add_argument("--ligand", default="GDP")
-    ap.add_argument("--cache", default="gtp_tubulin_cache.tsv")
+    ap.add_argument("--cache", default="gtp_all_rcsb_cache.tsv")
     ap.add_argument("--refresh", action="store_true")
     ap.add_argument("--entry-list", default=None)
     ap.add_argument("--search-rcsb", action="store_true")

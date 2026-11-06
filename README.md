@@ -38,7 +38,7 @@ Place GDP-containing `.pdb` files in `input/` and run:
 python3 gdp_to_gtp.py \
   --input-dir input \
   --out-dir output \
-  --cache gtp_tubulin_cache.tsv
+  --cache gtp_all_rcsb_cache.tsv
 ```
 
 Outputs in `output/`:
@@ -51,19 +51,23 @@ For further options, run `python3 gdp_to_gtp.py --help`.
 
 ## GTP reference library
 
-The included `gtp_tubulin_cache.tsv` contains GTP conformations collected from experimentally determined structures using a tubulin-related search. **The placement algorithm is general, but this bundled reference library is not comprehensive for every GDP-binding protein.** For other target systems, a relevant GTP reference library may be preferable.
+The recommended `gtp_all_rcsb_cache.tsv` was assembled from experimentally determined RCSB PDB entries containing the ligand `GTP` (search performed 6 November 2026). The search returned 1,922 PDB entries; the resulting cache contains **9,257 complete GTP coordinate sets from 1,894 entries**. The associated `gtp_all_pdb_ids.txt` records the search-result entry IDs. Some entries could not be fetched or did not provide a complete usable GTP conformation.
 
-To prepare a custom library, list experimental PDB IDs (one per line) in `gtp_pdb_ids.txt` and run:
+The previous `gtp_tubulin_cache.tsv` is retained for users who need the original tubulin-focused reference collection. A geometrically compatible GTP donor is not necessarily the preferred bound conformation for an unrelated protein; inspect each result, including any reported residual overlaps.
+
+To refresh the general cache using the **saved list** of RCSB entries, install `requests` and run:
 
 ```bash
 python3 -m pip install requests
+printf 'HEADER    CACHE BUILD ONLY\nEND\n' > /tmp/gtp_cache_build.pdb
 python3 gdp_to_gtp.py \
-  --input-dir input \
-  --out-dir output \
-  --cache custom_gtp_cache.tsv \
-  --refresh \
-  --entry-list gtp_pdb_ids.txt
+  --files /tmp/gtp_cache_build.pdb \
+  --cache gtp_all_rcsb_cache.tsv \
+  --entry-list gtp_all_pdb_ids.txt \
+  --refresh
 ```
+
+This refreshes the stored entry IDs; it does not discover newer entries added after the search. The current `--search-rcsb` option in the script still applies a tubulin keyword filter.
 
 ## Limitations
 
