@@ -1,0 +1,171 @@
+HOW TO RUN  --  gdp_to_gtp.py  (version 2)
+=============================================================================
+
+FOLDER LAYOUT
+-----------------------------------------------------------------------------
+Everything lives in one self-contained folder.  It is already set up here:
+
+    C:\Users\rosha\Downloads\MT\GTP_tool\
+    |
+    |-- gdp_to_gtp.py             the script            <- do not move
+    |-- gtp_tubulin_cache.tsv     the GTP library, 6.2 MB, 6875 molecules
+    |-- run.bat                   Windows one-click launcher
+    |-- run.sh                    Linux / Mac launcher
+    |-- README_gdp_to_gtp.md      full documentation of every option
+    |-- HOW_TO_RUN.txt            this file
+    |
+    |-- input\                    <<< PUT YOUR *_GDP.pdb FILES HERE
+    |     |-- N_chain1_GDP.pdb          single chain, or
+    |     |-- NA_chain2_GDP.pdb
+    |     |-- NB_chain3_GDP.pdb
+    |     |-- NC_chain4_GDP.pdb
+    |     |-- whole_microtubule.pdb     a whole multi-chain model -- fine too
+    |
+    |-- output\                   <<< RESULTS APPEAR HERE (created for you)
+          |-- N_chain1_GTP.pdb          GDP replaced by GTP
+          |-- NA_chain2_GTP.pdb
+          |-- NB_chain3_GTP.pdb
+          |-- NC_chain4_GTP.pdb
+          |-- sites_<name>.csv          one row per GDP site that was replaced
+          |-- all_sites.csv             the same, across every input file
+
+The script, the cache and the two folders must stay together.  You can copy
+or rename the whole GTP_tool folder anywhere; just keep the inside intact.
+
+
+ONE-TIME SETUP
+-----------------------------------------------------------------------------
+Open Command Prompt (or Anaconda Prompt) and install the two libraries:
+
+    pip install numpy requests
+
+numpy is always needed.  requests is only used if you later add --refresh to
+download fresh structures from RCSB.  With the supplied cache the script runs
+completely offline.
+
+
+RUNNING IT -- OPTION 1, EASIEST
+-----------------------------------------------------------------------------
+Double-click            run.bat
+
+That is all.  It opens a window, prints progress, and pauses at the end so you
+can read the result.
+
+
+RUNNING IT -- OPTION 2, FROM A TERMINAL
+-----------------------------------------------------------------------------
+    cd C:\Users\rosha\Downloads\MT\GTP_tool
+    python gdp_to_gtp.py --input-dir input --pattern *_GDP.pdb --out-dir output --cache gtp_tubulin_cache.tsv
+
+Four small single-chain structures: about 4 seconds.
+A 368,000-atom microtubule with 52 GDP sites: about 3 minutes.
+
+On Linux / Mac the same thing is:
+
+    cd .../GTP_tool
+    ./run.sh
+
+
+USING IT ON NEW FILES
+-----------------------------------------------------------------------------
+1. Drop the new PDB files into  input\
+2. Delete or empty  output\   (or point --out-dir somewhere else)
+3. Double-click  run.bat
+
+If your files are not named *_GDP.pdb, change the pattern:
+
+    python gdp_to_gtp.py --input-dir input --pattern *.pdb --out-dir output --cache gtp_tubulin_cache.tsv
+
+If the nucleotide is not called GDP in the file, name it:
+
+    python gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_tubulin_cache.tsv --ligand GDP
+
+
+WHAT VERSION 2 DOES DIFFERENTLY
+-----------------------------------------------------------------------------
+* Every GDP in the file is replaced, not just one.  Any number of chains.
+* Nucleotides are told apart by chain + residue number + segment ID, so the 13
+  copies of "chain 1 residue 446" in your microtubule model are 13 separate
+  sites, not one.
+* Clash-free is now the DEFAULT.  You do not have to ask for it.
+* Anything that is not a GDP is copied through untouched -- protein, ions,
+  waters, and any GTP that is already in the file.
+* Large structures are handled: above 99,999 atoms the original atom serial
+  numbers are kept as they are and CONECT records are omitted, because the
+  5-digit PDB serial field cannot hold unique numbers that high.
+
+Measured on your real output.pdb (368,368 atoms, 52 GDP at residue 446, plus
+52 GTP at residue 452 and 52 Mg that must not be touched):
+
+    52 GDP sites replaced in 2 minutes 43 seconds
+    52 of 52 clash-free
+    367,172 of 367,172 non-replaced lines byte-identical to the input
+    all 52 pre-existing GTP, all 52 Mg and all 260 TER records untouched
+
+The finished file is already in output\output_GTP.pdb .
+
+
+THE OPTIONS YOU ARE MOST LIKELY TO WANT
+-----------------------------------------------------------------------------
+1) Old version-1 behaviour: take the lowest RMSD donor and ignore sterics.
+
+       python gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_tubulin_cache.tsv --pick lowest-rmsd
+
+2) Re-download everything from RCSB so newly released structures are included.
+   Needs internet, takes a few minutes, and rewrites the cache file.
+
+       python gdp_to_gtp.py --input-dir input --out-dir output --cache gtp_tubulin_cache.tsv --refresh
+
+3) Search a different set of PDB entries, e.g. straight from your ligand matrix.
+
+       python gdp_to_gtp.py --input-dir input --out-dir output --cache my_cache.tsv --refresh --entry-list "..\\new\\..\\Data_files_CSV_Excel\\2_ligand_presence_matrix.csv"
+
+4) Be stricter or looser about what counts as a clash.
+
+       --env-radius 10        look further around the ligand (slower, safer)
+       --max-shift 0.0        never allow the last-resort rigid-body nudge
+
+Full option list:
+
+       python gdp_to_gtp.py --help
+
+
+READING THE OUTPUT
+-----------------------------------------------------------------------------
+Each site prints one line, e.g.
+
+  [7/52] chain 4 res 446 seg WC   <- 5KMG A 501  RMSD 0.791 A  clash-free (gamma rotated -10/+60 deg)
+
+  "clash-free"                     the donor fitted cleanly as it is
+  "clash-free (gamma rotated ...)" only the four new gamma-phosphate atoms were
+                                   turned on their free bonds; all 28 atoms
+                                   shared with the GDP are exactly where the
+                                   superposition put them
+  "clash-free (nudged 0.25 A)"    the whole ligand was moved slightly
+  "RESIDUAL OVERLAP +x.xx A"       nothing worked; the site is still written
+                                   and flagged so you can look at it
+
+sites_<name>.csv and all_sites.csv carry the same information per site, plus
+the donor's resolution, experiment type and the closest contact.
+
+
+IF SOMETHING GOES WRONG
+-----------------------------------------------------------------------------
+"python is not recognized"
+    Python is not on your PATH.  Use the Anaconda Prompt instead of the plain
+    Command Prompt, or type the full path to python.exe.
+
+"No module named numpy"
+    Run:  pip install numpy requests
+
+"No GDP ligand with a complete atom set found in input"
+    The input folder is empty, the pattern does not match your filenames, or
+    the nucleotide has a different residue name.  Check with --pattern and
+    --ligand.
+
+"skipping <file> ligand ... missing atoms: ..."
+    That GDP does not have all 28 atoms, so it cannot be superimposed.  The
+    other files still process normally.
+
+The window closes instantly when I double-click run.bat
+    Run it from a terminal instead so the error stays on screen.
