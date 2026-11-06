@@ -4,9 +4,11 @@
 
 ## Purpose
 
-Preparing GTP-bound models of large protein complexes can require placing a nucleotide at many GDP-bound sites. Manually rebuilding GTP or docking it separately into each binding site is time-consuming, particularly in multichain or repeating assemblies. This tool automates that structural preparation: it identifies GDP residues in a PDB file and replaces them with candidate GTP conformations, avoiding repeated manual placement at individual sites.
+Preparing GTP-containing models of large protein complexes can be challenging when multiple chains contain GDP-bound sites. Manually replacing GDP with GTP at each binding site requires repeated nucleotide placement, structural alignment, and evaluation of steric interactions. In large multichain or repetitive assemblies, performing these steps individually becomes increasingly difficult and may introduce inconsistencies between binding sites.
 
-The workflow is applicable to GDP-containing protein structures with one or multiple nucleotide-binding sites; it is not restricted to a particular protein family. It provides **coordinate-based GTP placement**, not a molecular docking calculation or a simulation of nucleotide exchange.
+This tool automates GDP-to-GTP structural replacement by identifying GDP residues in PDB structures and aligning experimentally determined GTP conformations with the existing nucleotide coordinates. Candidate placements are evaluated using RMSD-based ranking and steric clash screening to identify suitable GTP geometries. The approach reduces repetitive manual modeling and provides a systematic, reproducible workflow for generating candidate GTP-containing structures for subsequent structural validation and molecular simulation.
+
+The workflow is not restricted to a particular protein family. It performs **structure-guided nucleotide placement**, not molecular docking or simulation of nucleotide exchange.
 
 ## Method
 
