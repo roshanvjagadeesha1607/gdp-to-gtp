@@ -33,8 +33,7 @@ some steric overlap remains. Inspect the PDB and CSV reports before using
 the structure for energy minimization or molecular dynamics.
 
 REFERENCE LIBRARY
-The default cache is gtp_all_rcsb_cache.tsv. The original tubulin-focused
-cache remains available as gtp_tubulin_cache.tsv. Select either using --cache.
+The default reference cache is gtp_all_rcsb_cache.tsv. Use --cache to select a different reference library.
 
 Full command-line options: python3 gdp_to_gtp.py --help
 Scientific details and limitations: README.md

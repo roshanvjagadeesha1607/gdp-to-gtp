@@ -53,7 +53,7 @@ For further options, run `python3 gdp_to_gtp.py --help`.
 
 The recommended `gtp_all_rcsb_cache.tsv` was assembled from experimentally determined RCSB PDB entries containing the ligand `GTP` (search performed 6 November 2026). The search returned 1,922 PDB entries; the resulting cache contains **9,257 complete GTP coordinate sets from 1,894 entries**. The associated `gtp_all_pdb_ids.txt` records the search-result entry IDs. Some entries could not be fetched or did not provide a complete usable GTP conformation.
 
-The previous `gtp_tubulin_cache.tsv` is retained for users who need the original tubulin-focused reference collection. A geometrically compatible GTP donor is not necessarily the preferred bound conformation for an unrelated protein; inspect each result, including any reported residual overlaps.
+A geometrically compatible GTP donor is not necessarily the preferred bound conformation for an unrelated protein; inspect each result, including any reported residual overlaps.
 
 To refresh the general cache using the **saved list** of RCSB entries, install `requests` and run:
 
